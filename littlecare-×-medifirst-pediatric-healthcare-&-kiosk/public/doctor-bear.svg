@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <!-- Background Gradient -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF3C7" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+    <linearGradient id="bearFur" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B45309" />
+      <stop offset="100%" stop-color="#78350F" />
+    </linearGradient>
+    <linearGradient id="coatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E2E8F0" />
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#176B87" />
+      <stop offset="100%" stop-color="#05445E" />
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="400" rx="40" fill="url(#bgGrad)" />
+
+  <!-- Sparkles -->
+  <circle cx="60" cy="70" r="5" fill="#F59E0B" />
+  <circle cx="340" cy="80" r="6" fill="#F59E0B" />
+  <polygon points="70,50 74,62 86,66 74,70 70,82 66,70 54,66 66,62" fill="#176B87" opacity="0.6"/>
+  <polygon points="330,120 333,130 343,133 333,136 330,146 327,136 317,133 327,130" fill="#176B87" opacity="0.6"/>
+
+  <!-- Doctor Bear Body / Shoulders -->
+  <ellipse cx="200" cy="360" rx="140" ry="110" fill="url(#bearFur)" />
+
+  <!-- Doctor White Coat -->
+  <path d="M 90 400 L 120 280 L 200 320 L 280 280 L 310 400 Z" fill="url(#coatGrad)" stroke="#CBD5E1" stroke-width="3" />
+  <!-- Stethoscope around neck -->
+  <path d="M 140 285 Q 200 360 260 285" fill="none" stroke="#176B87" stroke-width="8" stroke-linecap="round" />
+  <circle cx="200" cy="355" r="14" fill="#0D9488" stroke="#FFFFFF" stroke-width="4" />
+  <circle cx="200" cy="355" r="5" fill="#FFFFFF" />
+
+  <!-- Bear Ears -->
+  <circle cx="120" cy="120" r="42" fill="url(#bearFur)" />
+  <circle cx="120" cy="120" r="24" fill="#FDE68A" />
+
+  <circle cx="280" cy="120" r="42" fill="url(#bearFur)" />
+  <circle cx="280" cy="120" r="24" fill="#FDE68A" />
+
+  <!-- Doctor Head Mirror / Headband -->
+  <path d="M 125 155 Q 200 135 275 155" fill="none" stroke="#176B87" stroke-width="10" stroke-linecap="round" />
+  <circle cx="165" cy="140" r="16" fill="#E2E8F0" stroke="#176B87" stroke-width="3" />
+  <circle cx="165" cy="140" r="7" fill="#38BDF8" />
+
+  <!-- Bear Head -->
+  <circle cx="200" cy="200" r="95" fill="url(#bearFur)" />
+
+  <!-- Bear Snout -->
+  <ellipse cx="200" cy="225" rx="42" ry="32" fill="#FEF3C7" />
+  <ellipse cx="200" cy="212" rx="16" ry="11" fill="#1E293B" />
+  <path d="M 200 223 L 200 236 M 190 238 Q 200 248 210 238" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Bear Eyes with happy sparkle -->
+  <ellipse cx="165" cy="185" rx="10" ry="14" fill="#1E293B" />
+  <circle cx="162" cy="180" r="4" fill="#FFFFFF" />
+
+  <ellipse cx="235" cy="185" rx="10" ry="14" fill="#1E293B" />
+  <circle cx="232" cy="180" r="4" fill="#FFFFFF" />
+
+  <!-- Rosy Cheeks -->
+  <ellipse cx="140" cy="215" rx="14" ry="9" fill="#FB7185" opacity="0.6" />
+  <ellipse cx="260" cy="215" rx="14" ry="9" fill="#FB7185" opacity="0.6" />
+
+  <!-- Doctor Badge on White Coat -->
+  <rect x="135" y="325" width="30" height="20" rx="4" fill="#176B87" />
+  <text x="150" y="338" font-family="'Inter', sans-serif" font-size="9" font-weight="bold" fill="#FFFFFF" text-anchor="middle">MD</text>
+  <path d="M 150 327 L 150 333 M 147 330 L 153 330" stroke="#D9F5E8" stroke-width="2" />
+</svg>

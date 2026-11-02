@@ -1,0 +1,6 @@
+{
+  "name": "LittleCare × MediFirst — Pediatric Healthcare & Kiosk",
+  "description": "Pediatric Telemetry & Interactive Gamified Kiosk with Kids Adventure Zone, Parent Portal, and Admin Clinic Control Hub.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-tealBrand: #176B87;
+  --color-mintBrand: #D9F5E8;
+  --color-softBlue: #EEF5FF;
+  --color-darkBg: #0B132B;
+  --color-darkCard: #1C2541;
+  --font-fredoka: "Fredoka", cursive, sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.kids-font {
+  font-family: 'Fredoka', cursive, sans-serif;
+}
+
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #176B87;
+  border-radius: 4px;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(23, 107, 135, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(23, 107, 135, 0.8);
+  }
+}
+
+.glow-effect {
+  animation: pulseGlow 3s infinite;
+}
+
+@keyframes floatAnim {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+.floating-cartoon {
+  animation: floatAnim 4s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-text {
+  display: inline-block;
+  animation: marquee 28s linear infinite;
+}
+
+button {
+  transition: transform 0.1s ease, background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+button:active {
+  transform: scale(0.93) !important;
+  filter: brightness(110%);
+}

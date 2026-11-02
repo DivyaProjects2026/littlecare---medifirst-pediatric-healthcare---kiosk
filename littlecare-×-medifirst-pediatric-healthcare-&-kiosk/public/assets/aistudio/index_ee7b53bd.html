@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LittleCare × MediFirst — Pediatric Healthcare & Kiosk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        tealBrand: '#176B87',
+                        mintBrand: '#D9F5E8',
+                        softBlue: '#EEF5FF',
+                        darkBg: '#0B132B',
+                        darkCard: '#1C2541'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .kids-font { font-family: 'Fredoka', cursive, sans-serif; }
+        .touch-target { min-height: 48px; min-width: 48px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+        ::-webkit-scrollbar-thumb { background: #176B87; border-radius: 4px; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(23, 107, 135, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(23, 107, 135, 0.8); }
+        }
+        .glow-effect { animation: pulseGlow 3s infinite; }
+        @keyframes floatAnim {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        .floating-cartoon { animation: floatAnim 4s ease-in-out infinite; }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .marquee-container { overflow: hidden; white-space: nowrap; }
+        .marquee-text { display: inline-block; animation: marquee 28s linear infinite; }
+        
+        button {
+            transition: transform 0.1s ease, background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+        }
+        button:active {
+            transform: scale(0.92) !important;
+            background-color: #f59e0b !important;
+            color: #0f172a !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.8), inset 0 3px 6px rgba(0,0,0,0.4) !important;
+            filter: brightness(110%);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- TOP BAR / GLOBAL HEADER -->
+    <header class="bg-tealBrand text-white px-6 py-3.5 shadow-lg flex items-center justify-between sticky top-0 z-50 backdrop-blur-md bg-tealBrand/95">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="router.navigate('roleSelection')">
+            <div class="bg-white p-1 rounded-2xl shadow-md glow-effect flex items-center justify-center w-11 h-11 overflow-hidden">
+                <i class="fa-solid fa-child-reaching text-tealBrand text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">LittleCare <span class="text-mintBrand font-light">× MediFirst</span></h1>
+                <p class="text-xs text-mintBrand font-medium" id="headerSubtitle">Pediatric Telemetry & Interactive Gamified Kiosk</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <select id="languageSelector" onchange="changeLanguage(this.value)" class="bg-teal-800 text-white text-sm rounded-xl px-3.5 py-2 border border-teal-600 focus:outline-none focus:ring-2 focus:ring-mintBrand cursor-pointer">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी (Hindi)</option>
+                </select>
+            </div>
+            <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-teal-800 hover:bg-teal-700 text-white transition touch-target flex items-center justify-center shadow" title="Toggle Dark/Light Mode">
+                <i id="themeIcon" class="fa-solid fa-moon text-lg"></i>
+            </button>
+            <button onclick="openEmergencyModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center space-x-2 shadow-lg animate-pulse touch-target">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span class="hidden sm:inline" data-i18n="emergencyBtn">EMERGENCY</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- HOMEPAGE SCROLLING MARQUEE BANNER -->
+    <div id="marqueeBanner" class="bg-amber-400 text-slate-900 py-2.5 px-4 overflow-hidden shadow-inner font-bold text-sm marquee-container relative z-40">
+        <div id="marqueeContent" class="marquee-text kids-font">
+            🌟 Welcome to LittleCare × MediFirst! Wash hands with Sparky, stay hydrated during fever, and enjoy happy doctor visits! ✨
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="appContainer" class="flex-grow flex flex-col p-4 md:p-6 max-w-7xl mx-auto w-full">
+        <!-- Dynamically rendered views go here -->
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-darkCard border-t border-slate-200 dark:border-slate-800 py-3 px-6 text-center text-xs text-slate-500 dark:text-slate-400 mt-auto">
+        <p>LittleCare x MediFirst Pediatric Kiosk v6.2 — 3-Access Portal (Kids, Parent, Admin).</p>
+    </footer>
+
+    <!-- EMERGENCY MODAL -->
+    <div id="emergencyModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkCard rounded-3xl max-w-lg w-full p-6 shadow-2xl border-2 border-red-500">
+            <div class="flex items-center space-x-3 text-red-600 mb-4">
+                <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+                <h3 class="text-2xl font-bold" data-i18n="emergencyTitle">Pediatric Emergency Assistance</h3>
+            </div>
+            <p class="text-slate-600 dark:text-slate-300 mb-4 text-sm leading-relaxed" data-i18n="emergencyDesc">
+                If the child is experiencing severe respiratory distress, unresponsiveness, severe bleeding, sudden high fever with convulsions, or blue lips, seek immediate emergency care.
+            </p>
+            <div class="bg-red-50 dark:bg-red-950/40 p-4 rounded-2xl border border-red-200 dark:border-red-900 mb-6 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold text-red-700 dark:text-red-300">National Emergency Helpline:</span>
+                    <a href="tel:112" class="bg-red-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-red-700 flex items-center space-x-2">
+                        <i class="fa-solid fa-phone"></i> <span>Call 112</span>
+                    </a>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeEmergencyModal()" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-300" data-i18n="closeBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        const translations = {
+            en: {
+                headerSubtitle: "Pediatric Telemetry & Interactive Gamified Kiosk",
+                emergencyBtn: "EMERGENCY",
+                emergencyTitle: "Pediatric Emergency Assistance",
+                emergencyDesc: "If the child is experiencing severe respiratory distress, unresponsiveness, or sudden high fever, seek immediate emergency care.",
+                closeBtn: "Close",
+                welcomeHeading: "Welcome to LittleCare × MediFirst! Choose Your Portal",
+                kidsPortalTitle: "Kids Adventure Zone",
+                kidsPortalDesc: "Watch cartoon health videos and take part in our fun interactive gamified vitals check with friendly animated companions!",
+                kidsBtn: "Enter Kids Portal",
+                parentPortalTitle: "Parent / Family Portal",
+                parentPortalDesc: "Select child account, view AI-generated clinical reports, check medical bills, receipts, and talk to LittleCare AI chatbot.",
+                parentBtn: "Enter Parent Portal",
+                adminPortalTitle: "Admin & Clinic Control Hub",
+                adminPortalDesc: "Upload cartoon videos, approve appointments, release AI clinical reports, and release bills & receipts.",
+                adminBtn: "Enter Admin Portal"
+            },
+            hi: {
+                headerSubtitle: "बाल चिकित्सा टेलीमेट्री और किओस्क",
+                emergencyBtn: "आपातकालीन",
+                emergencyTitle: "बाल चिकित्सा आपातकालीन सहायता",
+                emergencyDesc: "यदि बच्चे को सांस लेने में कठिनाई हो, तो तुरंत आपातकालीन चिकित्सा लें।",
+                closeBtn: "बंद करें",
+                welcomeHeading: "LittleCare × MediFirst में आपका स्वागत है! अपना पोर्टल चुनें",
+                kidsPortalTitle: "बच्चों का एडवेंचर ज़ोन",
+                kidsPortalDesc: "कार्टून वीडियो देखें और मजेदार गेमफाइड तरीके से अपने वाइटल्स दर्ज करें!",
+                kidsBtn: "किड्स पोर्टल में प्रवेश करें",
+                parentPortalTitle: "अभिभावक पोर्टल",
+                parentPortalDesc: "अपॉइंटमेंट बुक करें, एआई रिपोर्ट देखें और बिल जांचें।",
+                parentBtn: "पैरेंट पोर्टल में प्रवेश करें",
+                adminPortalTitle: "एडमिन हब",
+                adminPortalDesc: "कार्टून वीडियो अपलोड करें, अपॉइंटमेंट स्वीकृत करें और रिपोर्ट जारी करें।",
+                adminBtn: "एडमिन पोर्टल में प्रवेश करें"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const dict = translations[lang] || translations['en'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.innerText = dict[key];
+            });
+        }
+
+        const defaultDb = {
+            marqueeMessage: "🌟 Welcome to LittleCare × MediFirst! Wash hands with Sparky, stay hydrated during fever, and enjoy happy doctor visits! ✨",
+            parentAccounts: [
+                { username: "parent_sample", childName: "Sample Child", pin: "1234" }
+            ],
+            currentLoggedInParent: "parent_sample",
+            childDetails: { name: "Sample Child", age: "8 Years", gender: "Male" },
+            vitalsVideos: [
+                { category: "Temperature", title: "Friendly Forehead Temp Check", videoUrl: "https://www.youtube.com/embed/3PmVJQUCm4s", isVideoFile: false, paramKey: "temp", unit: "°C", defaultVal: "36.8" },
+                { category: "Heart Rate", title: "Happy Heartbeat Drum", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", isVideoFile: false, paramKey: "hr", unit: "BPM", defaultVal: "90" },
+                { category: "Oxygen Saturation", title: "SpO2 Magic Star", videoUrl: "https://www.youtube.com/embed/3PmVJQUCm4s", isVideoFile: false, paramKey: "spO2", unit: "%", defaultVal: "98" },
+                { category: "Respiratory Rate", title: "Breathing Butterfly", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", isVideoFile: false, paramKey: "respRate", unit: "/min", defaultVal: "20" },
+                { category: "Blood Pressure", title: "Bouncy Arm Band", videoUrl: "https://www.youtube.com/embed/3PmVJQUCm4s", isVideoFile: false, paramKey: "bp", unit: "mmHg", defaultVal: "100/65" },
+                { category: "Weight", title: "Weighing Star Scale", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", isVideoFile: false, paramKey: "weight", unit: "kg", defaultVal: "26" },
+                { category: "Height", title: "Giraffe Height Ruler", videoUrl: "https://www.youtube.com/embed/3PmVJQUCm4s", isVideoFile: false, paramKey: "height", unit: "cm", defaultVal: "128" }
+            ],
+            cartoonStories: [
+                {
+                    title: "Sparky the Super Soap!",
+                    icon: "fa-soap text-cyan-400",
+                    bgGradient: "from-cyan-400 to-blue-600",
+                    character: "🫧",
+                    message: "Hello little friend! I am Sparky the Soap.",
+                    videoUrl: "https://www.youtube.com/embed/3PmVJQUCm4s",
+                    isVideoFile: false
+                }
+            ],
+            appointments: [
+                { id: "APT-101", childName: "Sample Child", age: "8 yrs", date: "2026-10-30", time: "10:00 AM", reason: "Annual Growth Check", status: "Approved" }
+            ],
+            patientRecords: {
+                "Sample Child": {
+                    childName: "Sample Child",
+                    age: "8 Years",
+                    gender: "Male",
+                    visitDate: "2026-10-30",
+                    parentName: "Parent Guardian",
+                    reportReleased: true,
+                    vitals: { temp: "36.8 °C", hr: "90 BPM", weight: "26 kg", height: "128 cm", spO2: "98%", respRate: "20/min", bp: "100/65 mmHg", bmi: "15.9 kg/m²" },
+                    diagnosis: "Pediatric Preliminary Health Screening — Normal healthy ranges.",
+                    aiSuggestions: ["Maintain balanced diet.", "Regular annual checkup recommended."]
+                }
+            },
+            bills: [
+                { id: "BILL-901", childName: "Sample Child", date: "2026-10-30", service: "Pediatric Consultation", amount: "₹ 850", status: "Released & Paid", receiptNo: "REC-5582" }
+            ]
+        };
+
+        let db = JSON.parse(localStorage.getItem('littleCareMediFirst_v13DB')) || defaultDb;
+        function saveDb() { localStorage.setItem('littleCareMediFirst_v13DB', JSON.stringify(db)); }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = "fa-solid fa-moon text-lg";
+            } else {
+                html.classList.remove('dark');
+                html.classList.add('dark');
+                icon.className = "fa-solid fa-sun text-lg";
+            }
+        }
+
+        function openEmergencyModal() { document.getElementById('emergencyModal').classList.remove('hidden'); }
+        function closeEmergencyModal() { document.getElementById('emergencyModal').classList.add('hidden'); }
+
+        const router = {
+            navigate: function(viewId, params = {}) {
+                const container = document.getElementById('appContainer');
+                if (!container) return;
+                container.innerHTML = '';
+                switch(viewId) {
+                    case 'roleSelection': renderRoleSelection(container); break;
+                    case 'kidsPortal': renderKidsPortal(container); break;
+                    case 'parentLogin': renderParentLogin(container); break;
+                    case 'parentPortal': renderParentPortal(container, params); break;
+                    case 'adminPortal': renderAdminPortal(container); break;
+                    default: renderRoleSelection(container);
+                }
+                window.scrollTo(0, 0);
+            }
+        };
+
+        function renderRoleSelection(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center flex-grow py-8 px-4 animate-fade-in space-y-8">
+                    <!-- HERO MASCOT & LOGO BANNER WITH UPLOADED DOCTOR BEAR IMAGE -->
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-8 bg-white dark:bg-darkCard p-6 md:p-8 rounded-3xl shadow-xl border-2 border-tealBrand/30 max-w-4xl w-full">
+                        <div class="w-48 h-48 rounded-3xl overflow-hidden shadow-lg border-4 border-tealBrand/20 flex-shrink-0 bg-amber-50 flex items-center justify-center">
+                            <img src="Gemini_Generated_Image_9bouk9bouk9bouk9_2.png" onerror="this.src='https://placehold.co/400x400/FFF3E0/8B4513?text=Doctor+Bear'" alt="LittleCare Doctor Bear Mascot" class="w-full h-full object-cover">
+                        </div>
+                        <div class="text-center md:text-left space-y-3">
+                            <div class="flex items-center justify-center md:justify-start space-x-3">
+                                <div class="bg-tealBrand p-2.5 rounded-2xl text-white text-2xl shadow-md">
+                                    <i class="fa-solid fa-child-reaching"></i>
+                                </div>
+                                <h2 class="text-3xl md:text-4xl font-black text-tealBrand dark:text-teal-400 kids-font">LittleCare <span class="text-emerald-600 font-light text-xl">× MediFirst</span></h2>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                                Compassionate pediatric care with interactive gamified vitals telemetry, joyful cartoon health guides, and secure parent/admin portals.
+                            </p>
+                            <span class="inline-block bg-mintBrand text-teal-800 text-xs font-bold px-3 py-1 rounded-full">🐻 Doctor Bear Welcomes You!</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center max-w-3xl">
+                        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white kids-font" data-i18n="welcomeHeading">
+                            Choose Your Portal
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+                        <div onclick="router.navigate('kidsPortal')" class="bg-gradient-to-br from-amber-400 to-orange-500 p-8 rounded-3xl shadow-xl border-4 border-white/40 hover:scale-105 transition cursor-pointer flex flex-col justify-between text-white group">
+                            <div>
+                                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mb-6">⭐</div>
+                                <h3 class="text-2xl font-bold mb-2 kids-font" data-i18n="kidsPortalTitle">Kids Adventure Zone</h3>
+                                <p class="text-white/90 text-sm leading-relaxed mb-6" data-i18n="kidsPortalDesc">Interactive gamified vitals checks & cartoon health videos.</p>
+                            </div>
+                            <button class="w-full bg-white text-orange-600 hover:bg-yellow-50 font-bold py-3.5 px-4 rounded-2xl transition shadow-lg touch-target kids-font text-base" data-i18n="kidsBtn">
+                                Enter Kids Portal
+                            </button>
+                        </div>
+
+                        <div onclick="router.navigate('parentLogin')" class="bg-white dark:bg-darkCard p-8 rounded-3xl shadow-xl border-2 border-emerald-500 hover:border-emerald-600 transition transform hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between group">
+                            <div>
+                                <div class="w-14 h-14 bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl mb-6">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2" data-i18n="parentPortalTitle">Parent / Family Portal</h3>
+                                <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6" data-i18n="parentPortalDesc">Select child account, view AI clinical reports, bills & chatbot.</p>
+                            </div>
+                            <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 px-4 rounded-xl transition flex items-center justify-center space-x-2 touch-target">
+                                <span data-i18n="parentBtn">Enter Parent Portal</span> <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        <div onclick="router.navigate('adminPortal')" class="bg-white dark:bg-darkCard p-8 rounded-3xl shadow-xl border-2 border-slate-700 hover:border-slate-900 transition transform hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between group">
+                            <div>
+                                <div class="w-14 h-14 bg-slate-800 text-white rounded-2xl flex items-center justify-center text-2xl mb-6">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2" data-i18n="adminPortalTitle">Admin & Clinic Control Hub</h3>
+                                <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6" data-i18n="adminPortalDesc">Manage parent accounts, filter reports by child & date, approve appointments.</p>
+                            </div>
+                            <button class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3.5 px-4 rounded-xl transition flex items-center justify-center space-x-2 touch-target">
+                                <span data-i18n="adminBtn">Enter Admin Portal</span> <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            changeLanguage(currentLang);
+        }
+
+        let kidsActiveTab = 'interactive';
+        let currentVitalStep = 0;
+        const capturedVitals = { temp: "36.8", hr: "90", spO2: "98", respRate: "20", bp: "100/65", weight: "26", height: "128" };
+
+        function renderKidsPortal(container) {
+            container.innerHTML = `
+                <div class="space-y-6 flex-grow">
+                    <div class="bg-gradient-to-r from-amber-400 to-orange-500 text-white p-6 rounded-3xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-white/20 p-3.5 rounded-2xl text-3xl">⭐</div>
+                            <div>
+                                <h2 class="text-2xl font-bold kids-font">Kids Adventure Zone</h2>
+                                <p class="text-sm text-white/95 kids-font">Fun cartoon guides and friendly vitals measurements!</p>
+                            </div>
+                        </div>
+                        <button onclick="router.navigate('roleSelection')" class="bg-white text-orange-600 hover:bg-yellow-50 px-5 py-2.5 rounded-2xl font-bold kids-font shadow">
+                            <i class="fa-solid fa-house mr-2"></i> Home Menu
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 border-b pb-3">
+                        <button onclick="setKidsTab('interactive')" class="px-5 py-2.5 rounded-2xl text-sm font-bold kids-font transition ${kidsActiveTab==='interactive'?'bg-orange-500 text-white shadow':'bg-white dark:bg-darkCard text-slate-700 dark:text-slate-200 border'}">🩺 Interactive Vitals Guide</button>
+                        <button onclick="setKidsTab('tabular')" class="px-5 py-2.5 rounded-2xl text-sm font-bold kids-font transition ${kidsActiveTab==='tabular'?'bg-orange-500 text-white shadow':'bg-white dark:bg-darkCard text-slate-700 dark:text-slate-200 border'}">📋 Tabular Vitals Form</button>
+                        <button onclick="setKidsTab('videos')" class="px-5 py-2.5 rounded-2xl text-sm font-bold kids-font transition ${kidsActiveTab==='videos'?'bg-orange-500 text-white shadow':'bg-white dark:bg-darkCard text-slate-700 dark:text-slate-200 border'}">📺 Cartoon Health Videos</button>
+                    </div>
+
+                    <div id="kidsTabContent">
+                        ${renderKidsTabContent()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function setKidsTab(tab) {
+            kidsActiveTab = tab;
+            document.getElementById('kidsTabContent').innerHTML = renderKidsTabContent();
+        }
+
+        function renderKidsTabContent() {
+            if (kidsActiveTab === 'interactive') {
+                const steps = db.vitalsVideos;
+                const step = steps[currentVitalStep] || steps[0];
+                return `
+                    <div class="bg-white dark:bg-darkCard p-6 md:p-8 rounded-3xl shadow-xl border space-y-6 max-w-3xl mx-auto">
+                        <div class="flex justify-between items-center">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full kids-font">Step ${currentVitalStep + 1} of ${steps.length}: ${step.category}</span>
+                            <div class="flex items-center space-x-2">
+                                <input type="text" id="childNameInput" value="${db.childDetails.name}" onchange="db.childDetails.name=this.value; saveDb();" class="px-3 py-1.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-xs font-bold" placeholder="Child Name">
+                                <input type="text" id="childAgeInput" value="${db.childDetails.age}" onchange="db.childDetails.age=this.value; saveDb();" class="w-20 px-3 py-1.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-xs font-bold" placeholder="Age">
+                            </div>
+                        </div>
+
+                        <div class="text-center space-y-2">
+                            <h3 class="text-2xl font-black kids-font text-slate-900 dark:text-white">${step.title}</h3>
+                            <p class="text-sm text-slate-500 kids-font">✨ Enter your measured value below while Doctor Bear guides you!</p>
+                        </div>
+
+                        <div class="rounded-3xl overflow-hidden shadow-lg border bg-black aspect-video flex items-center justify-center relative">
+                            ${step.isVideoFile ? `
+                                <video src="${step.videoUrl}" controls autoplay class="w-full h-full object-cover"></video>
+                            ` : `
+                                <iframe src="${step.videoUrl}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            `}
+                        </div>
+
+                        <div class="bg-amber-50 dark:bg-amber-950/40 p-4 rounded-2xl border border-amber-200 dark:border-amber-900 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <span class="font-bold kids-font text-amber-800 dark:text-amber-300">Enter ${step.category} Value (${step.unit}):</span>
+                            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                                <input type="text" id="currentStepValue" value="${capturedVitals[step.paramKey] || step.defaultVal}" onchange="capturedVitals['${step.paramKey}']=this.value;" class="w-full sm:w-36 px-4 py-2.5 rounded-xl border font-bold text-lg text-center bg-white dark:bg-darkCard">
+                                <span class="font-bold text-sm text-slate-500">${step.unit}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between pt-4">
+                            <button onclick="if(currentVitalStep>0){currentVitalStep--; setKidsTab('interactive');}" class="px-5 py-2.5 rounded-2xl font-bold kids-font bg-slate-200 dark:bg-slate-700 text-sm" ${currentVitalStep===0?'disabled opacity-50':''}>◀ Previous</button>
+                            <button onclick="
+                                const valInput = document.getElementById('currentStepValue');
+                                if(valInput) capturedVitals['${step.paramKey}'] = valInput.value;
+                                if(currentVitalStep < steps.length-1){
+                                    currentVitalStep++;
+                                    setKidsTab('interactive');
+                                } else {
+                                    const name = db.childDetails.name;
+                                    db.patientRecords[name] = {
+                                        childName: name,
+                                        age: db.childDetails.age,
+                                        gender: db.childDetails.gender,
+                                        visitDate: new Date().toISOString().split('T')[0],
+                                        parentName: 'Parent Guardian',
+                                        reportReleased: true,
+                                        vitals: {
+                                            temp: capturedVitals.temp + ' °C',
+                                            hr: capturedVitals.hr + ' BPM',
+                                            spO2: capturedVitals.spO2 + '%',
+                                            respRate: capturedVitals.respRate + '/min',
+                                            bp: capturedVitals.bp + ' mmHg',
+                                            weight: capturedVitals.weight + ' kg',
+                                            height: capturedVitals.height + ' cm',
+                                            bmi: ((parseFloat(capturedVitals.weight) / Math.pow(parseFloat(capturedVitals.height)/100, 2)).toFixed(1)) + ' kg/m²'
+                                        },
+                                        diagnosis: 'Pediatric Preliminary Health Screening — All parameters successfully captured via Interactive Kids Guide.',
+                                        aiSuggestions: ['Healthy vital signs recorded.', 'Continue balanced nutrition and proper hydration.']
+                                    };
+                                    saveDb();
+                                    alert('All vitals successfully captured, saved, and reflected in Tabular Form & Parent Report!');
+                                    setKidsTab('tabular');
+                                }
+                            " class="px-6 py-2.5 rounded-2xl font-bold kids-font bg-orange-500 hover:bg-orange-600 text-white text-sm shadow">
+                                ${currentVitalStep === steps.length - 1 ? 'Finish & View Tabular Form 🌟' : 'Next Vital ▶'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (kidsActiveTab === 'tabular') {
+                return `
+                    <div class="bg-white dark:bg-darkCard p-6 md:p-8 rounded-3xl shadow-xl border space-y-6 max-w-3xl mx-auto">
+                        <h3 class="text-2xl font-bold kids-font text-slate-900 dark:text-white text-center">Colorful Tabular Vitals & Patient Form</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Child Full Name</label>
+                                <input type="text" id="tabChildName" value="${db.childDetails.name}" class="w-full px-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Age</label>
+                                <input type="text" id="tabChildAge" value="${db.childDetails.age}" class="w-full px-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Gender</label>
+                                <input type="text" id="tabChildGender" value="${db.childDetails.gender}" class="w-full px-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm font-bold">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
+                            <div class="bg-amber-50 dark:bg-amber-950/40 p-4 rounded-2xl border text-center">
+                                <span class="text-xs font-bold text-amber-700">Temperature</span>
+                                <input type="text" id="tabTemp" value="${capturedVitals.temp}" class="w-full mt-1 text-center font-black text-xl bg-transparent">
+                                <span class="text-[10px] text-slate-400">°C</span>
+                            </div>
+                            <div class="bg-blue-50 dark:bg-blue-950/40 p-4 rounded-2xl border text-center">
+                                <span class="text-xs font-bold text-blue-700">Heart Rate</span>
+                                <input type="text" id="tabHr" value="${capturedVitals.hr}" class="w-full mt-1 text-center font-black text-xl bg-transparent">
+                                <span class="text-[10px] text-slate-400">BPM</span>
+                            </div>
+                            <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-2xl border text-center">
+                                <span class="text-xs font-bold text-emerald-700">Oxygen (SpO2)</span>
+                                <input type="text" id="tabSpO2" value="${capturedVitals.spO2}" class="w-full mt-1 text-center font-black text-xl bg-transparent">
+                                <span class="text-[10px] text-slate-400">%</span>
+                            </div>
+                            <div class="bg-purple-50 dark:bg-purple-950/40 p-4 rounded-2xl border text-center">
+                                <span class="text-xs font-bold text-purple-700">Respiratory Rate</span>
+                                <input type="text" id="tabResp" value="${capturedVitals.respRate}" class="w-full mt-1 text-center font-black text-xl bg-transparent">
+                                <span class="text-[10px] text-slate-400">/min</span>
+                            </div>
+                            <div class="bg-rose-50 dark:bg-rose-950/40 p-4 rounded-2xl border text-center">
+                                <span class="text-xs font-bold text-rose-700">Blood Pressure</span>
+                                <input type="text" id="tabBp" value="${capturedVitals.bp}" class="w-full mt-1 text-center font-black text-xl bg-transparent">
+                                <span class="text-[10px] text-slate-400">mmHg</span>
+                            </div>
+                            <div class="bg-cyan-50 dark:bg-cyan-950/40 p-4 rounded-2xl border text-center">
+                                <span class="text-xs font-bold text-cyan-700">Weight</span>
+                                <input type="text" id="tabWeight" value="${capturedVitals.weight}" class="w-full mt-1 text-center font-black text-xl bg-transparent">
+                                <span class="text-[10px] text-slate-400">kg</span>
+                            </div>
+                            <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border text-center">
+                                <span class="text-xs font-bold text-indigo-700">Height</span>
+                                <input type="text" id="tabHeight" value="${capturedVitals.height}" class="w-full mt-1 text-center font-black text-xl bg-transparent">
+                                <span class="text-[10px] text-slate-400">cm</span>
+                            </div>
+                        </div>
+
+                        <button onclick="saveTabularVitals()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold kids-font py-3.5 rounded-2xl shadow">Save Tabular Vitals & Push to Parent Report ⭐</button>
+                    </div>
+                `;
+            } else if (kidsActiveTab === 'videos') {
+                return `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${db.cartoonStories.map((story, index) => `
+                            <div class="bg-white dark:bg-darkCard p-6 rounded-3xl shadow-xl border space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-4xl">${story.character}</div>
+                                        <div>
+                                            <h4 class="font-black kids-font text-xl text-slate-900 dark:text-white">${story.title}</h4>
+                                            <p class="text-xs text-slate-500 kids-font">${story.message}</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="openFullscreenVideo(${index})" class="bg-orange-500 hover:bg-orange-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold kids-font shadow flex items-center space-x-1.5 touch-target">
+                                        <i class="fa-solid fa-expand"></i> <span>Full Screen</span>
+                                    </button>
+                                </div>
+                                <div class="rounded-2xl overflow-hidden aspect-video bg-black">
+                                    ${story.isVideoFile ? `
+                                        <video src="${story.videoUrl}" controls class="w-full h-full object-cover"></video>
+                                    ` : `
+                                        <iframe src="${story.videoUrl}" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+                                    `}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- FULLSCREEN VIDEO MODAL -->
+                    <div id="fullscreenVideoModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4">
+                        <div class="w-full max-w-5xl flex justify-between items-center mb-4 px-4 text-white">
+                            <h3 id="fullscreenModalTitle" class="text-2xl font-bold kids-font">Cartoon Health Video</h3>
+                            <button onclick="closeFullscreenVideo()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-2xl font-bold kids-font shadow-lg flex items-center space-x-2 touch-target">
+                                <i class="fa-solid fa-xmark text-lg"></i> <span>Close Fullscreen</span>
+                            </button>
+                        </div>
+                        <div id="fullscreenVideoContainer" class="w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-2xl bg-black border-2 border-orange-500"></div>
+                    </div>
+                `;
+            }
+        }
+
+        function openFullscreenVideo(index) {
+            const story = db.cartoonStories[index];
+            if (!story) return;
+            const modal = document.getElementById('fullscreenVideoModal');
+            const container = document.getElementById('fullscreenVideoContainer');
+            const titleEl = document.getElementById('fullscreenModalTitle');
+            if (titleEl) titleEl.innerText = story.title;
+            if (container) {
+                if (story.isVideoFile) {
+                    container.innerHTML = `<video src="${story.videoUrl}" controls autoplay class="w-full h-full object-cover"></video>`;
+                } else {
+                    container.innerHTML = `<iframe src="${story.videoUrl}?autoplay=1" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                }
+            }
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeFullscreenVideo() {
+            const modal = document.getElementById('fullscreenVideoModal');
+            const container = document.getElementById('fullscreenVideoContainer');
+            if (container) container.innerHTML = '';
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function saveTabularVitals() {
+            const name = document.getElementById('tabChildName').value;
+            db.childDetails.name = name;
+            db.childDetails.age = document.getElementById('tabChildAge').value;
+            db.childDetails.gender = document.getElementById('tabChildGender').value;
+
+            capturedVitals.temp = document.getElementById('tabTemp').value;
+            capturedVitals.hr = document.getElementById('tabHr').value;
+            capturedVitals.spO2 = document.getElementById('tabSpO2').value;
+            capturedVitals.respRate = document.getElementById('tabResp').value;
+            capturedVitals.bp = document.getElementById('tabBp').value;
+            capturedVitals.weight = document.getElementById('tabWeight').value;
+            capturedVitals.height = document.getElementById('tabHeight').value;
+
+            db.patientRecords[name] = {
+                childName: name,
+                age: db.childDetails.age,
+                gender: db.childDetails.gender,
+                visitDate: new Date().toISOString().split('T')[0],
+                parentName: 'Parent Guardian',
+                reportReleased: true,
+                vitals: {
+                    temp: capturedVitals.temp + ' °C',
+                    hr: capturedVitals.hr + ' BPM',
+                    spO2: capturedVitals.spO2 + '%',
+                    respRate: capturedVitals.respRate + '/min',
+                    bp: capturedVitals.bp + ' mmHg',
+                    weight: capturedVitals.weight + ' kg',
+                    height: capturedVitals.height + ' cm',
+                    bmi: ((parseFloat(capturedVitals.weight) / Math.pow(parseFloat(capturedVitals.height)/100, 2)).toFixed(1)) + ' kg/m²'
+                },
+                diagnosis: 'Pediatric Preliminary Health Screening — Verified via Tabular Vitals.',
+                aiSuggestions: ['All parameters normal and verified.', 'Routine follow-up in 6 months.']
+            };
+            saveDb();
+            alert(`Tabular vitals and details saved successfully for ${name}! Reflecting in Parent Portal.`);
+            router.navigate('roleSelection');
+        }
+
+        /* --- PARENT PORTAL --- */
+        function renderParentLogin(container) {
+            container.innerHTML = `
+                <div class="flex items-center justify-center flex-grow py-8 px-4">
+                    <div class="bg-white dark:bg-darkCard p-8 rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 dark:border-slate-800 space-y-6">
+                        <div class="text-center">
+                            <div class="inline-flex bg-emerald-500/10 text-emerald-600 p-3 rounded-2xl mb-3">
+                                <i class="fa-solid fa-users text-2xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Parent / Family Portal Login</h3>
+                            <p class="text-xs text-slate-500 mt-1">Select child account and enter hospital PIN.</p>
+                        </div>
+                        <form onsubmit="handleParentLogin(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase mb-1">Select Parent Account / Child</label>
+                                <select id="parentAccSelect" class="w-full px-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm font-bold">
+                                    ${db.parentAccounts.map(acc => `<option value="${acc.username}">${acc.username} (${acc.childName})</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase mb-1">Hospital Master PIN</label>
+                                <input type="password" id="parentPin" value="1234" required class="w-full px-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl transition shadow-lg">
+                                Access Parent Portal
+                            </button>
+                        </form>
+                        <div class="text-center">
+                            <button onclick="router.navigate('roleSelection')" class="text-sm text-slate-500 underline font-medium">Return to Home</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleParentLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('parentAccSelect').value;
+            db.currentLoggedInParent = username;
+            const acc = db.parentAccounts.find(a => a.username === username);
+            saveDb();
+            router.navigate('parentPortal', { childName: acc ? acc.childName : "Sample Child" });
+        }
+
+        function renderParentPortal(container, params = {}) {
+            const childName = params.childName || "Sample Child";
+            const record = db.patientRecords[childName] || db.patientRecords["Sample Child"] || {
+                childName: childName,
+                age: "8 Years",
+                gender: "Male",
+                visitDate: new Date().toISOString().split('T')[0],
+                reportReleased: true,
+                vitals: { temp: "36.8 °C", hr: "90 BPM", weight: "26 kg", height: "128 cm", spO2: "98%", respRate: "20/min", bp: "100/65 mmHg", bmi: "15.9 kg/m²" },
+                diagnosis: "Routine Screening.",
+                aiSuggestions: ["Maintain hydration."]
+            };
+
+            container.innerHTML = `
+                <div class="space-y-6 flex-grow">
+                    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 rounded-3xl shadow-lg flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold">Parent Portal: ${childName}</h2>
+                            <p class="text-sm text-emerald-100">Official Clinical Reports, Vitals & AI Assistant</p>
+                        </div>
+                        <button onclick="router.navigate('roleSelection')" class="bg-white/20 text-white px-4 py-2 rounded-xl text-sm font-semibold">Logout</button>
+                    </div>
+
+                    <div class="bg-white dark:bg-darkCard p-6 md:p-8 rounded-3xl shadow-xl border space-y-6">
+                        <div class="flex justify-between items-center border-b pb-4">
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white">Pediatric Preliminary Health Report</h3>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">Released by Admin</span>
+                        </div>
+
+                        ${record && record.reportReleased ? `
+                            <div class="space-y-6 text-sm">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl">
+                                    <div><span class="text-xs text-slate-400">Patient:</span> <p class="font-bold text-base">${record.childName}</p></div>
+                                    <div><span class="text-xs text-slate-400">Age / Gender:</span> <p class="font-bold text-base">${record.age || '8 Years'} / ${record.gender || 'Male'}</p></div>
+                                    <div><span class="text-xs text-slate-400">Visit Date:</span> <p class="font-bold text-base">${record.visitDate}</p></div>
+                                    <div><span class="text-xs text-slate-400">BMI:</span> <p class="font-bold text-base text-emerald-600">${record.vitals.bmi || '15.9 kg/m²'}</p></div>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-3">Captured Vitals & Telemetry Measurements:</h4>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border">
+                                            <span class="text-xs text-slate-500 font-bold">Temperature</span>
+                                            <p class="font-black text-lg text-amber-700">${record.vitals.temp}</p>
+                                        </div>
+                                        <div class="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-xl border">
+                                            <span class="text-xs text-slate-500 font-bold">Heart Rate</span>
+                                            <p class="font-black text-lg text-blue-700">${record.vitals.hr}</p>
+                                        </div>
+                                        <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border">
+                                            <span class="text-xs text-slate-500 font-bold">Oxygen (SpO2)</span>
+                                            <p class="font-black text-lg text-emerald-700">${record.vitals.spO2}</p>
+                                        </div>
+                                        <div class="p-3 bg-purple-50 dark:bg-purple-950/30 rounded-xl border">
+                                            <span class="text-xs text-slate-500 font-bold">Respiratory Rate</span>
+                                            <p class="font-black text-lg text-purple-700">${record.vitals.respRate}</p>
+                                        </div>
+                                        <div class="p-3 bg-rose-50 dark:bg-rose-950/30 rounded-xl border">
+                                            <span class="text-xs text-slate-500 font-bold">Blood Pressure</span>
+                                            <p class="font-black text-lg text-rose-700">${record.vitals.bp}</p>
+                                        </div>
+                                        <div class="p-3 bg-cyan-50 dark:bg-cyan-950/30 rounded-xl border">
+                                            <span class="text-xs text-slate-500 font-bold">Weight / Height</span>
+                                            <p class="font-black text-lg text-cyan-700">${record.vitals.weight} / ${record.vitals.height}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 space-y-2">
+                                    <h4 class="font-bold text-emerald-800 dark:text-emerald-300">LittleCare AI Clinical Suggestions:</h4>
+                                    <ul class="list-disc pl-5 space-y-1 text-xs">
+                                        ${(record.aiSuggestions || []).map(s => `<li>${s}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="p-8 text-center text-amber-600 bg-amber-50 dark:bg-amber-950/40 rounded-2xl">
+                                <i class="fa-solid fa-clock text-3xl mb-2"></i>
+                                <p class="font-bold">Clinical report is pending release by hospital admin.</p>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        /* --- ADMIN PORTAL WITH RESTORED TABS & CONTROLS --- */
+        let adminActiveTab = 'accounts';
+
+        function renderAdminPortal(container) {
+            container.innerHTML = `
+                <div class="space-y-6 flex-grow">
+                    <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-lg flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold">Admin & Clinic Control Hub</h2>
+                            <p class="text-sm text-slate-400">Manage accounts, approve appointments, and release reports/bills.</p>
+                        </div>
+                        <button onclick="router.navigate('roleSelection')" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-sm font-semibold">Logout Admin</button>
+                    </div>
+
+                    <!-- ADMIN SUB-TABS -->
+                    <div class="flex flex-wrap gap-2 border-b pb-3">
+                        <button onclick="setAdminTab('accounts')" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition ${adminActiveTab==='accounts'?'bg-slate-900 text-white shadow':'bg-white dark:bg-darkCard text-slate-700 dark:text-slate-200 border'}">👥 Parent Accounts</button>
+                        <button onclick="setAdminTab('appointments')" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition ${adminActiveTab==='appointments'?'bg-slate-900 text-white shadow':'bg-white dark:bg-darkCard text-slate-700 dark:text-slate-200 border'}">📅 Appointments</button>
+                        <button onclick="setAdminTab('reports')" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition ${adminActiveTab==='reports'?'bg-slate-900 text-white shadow':'bg-white dark:bg-darkCard text-slate-700 dark:text-slate-200 border'}">📊 Clinical Reports</button>
+                        <button onclick="setAdminTab('billing')" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition ${adminActiveTab==='billing'?'bg-slate-900 text-white shadow':'bg-white dark:bg-darkCard text-slate-700 dark:text-slate-200 border'}">💳 Bills & Receipts</button>
+                        <button onclick="setAdminTab('videos')" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition ${adminActiveTab==='videos'?'bg-slate-900 text-white shadow':'bg-white dark:bg-darkCard text-slate-700 dark:text-slate-200 border'}">📺 Cartoon Videos CMS</button>
+                    </div>
+
+                    <div id="adminTabContent">
+                        ${renderAdminTabContent()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function setAdminTab(tab) {
+            adminActiveTab = tab;
+            document.getElementById('adminTabContent').innerHTML = renderAdminTabContent();
+        }
+
+        function renderAdminTabContent() {
+            if (adminActiveTab === 'accounts') {
+                return `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-darkCard p-6 rounded-3xl shadow-xl border space-y-4">
+                            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Register Parent & Child Account</h3>
+                            <form onsubmit="handleAddParentAccount(event)" class="space-y-3">
+                                <input type="text" id="newParentUser" placeholder="Parent Username (e.g. parent_john)" required class="w-full px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                <input type="text" id="newChildName" placeholder="Child Full Name" required class="w-full px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                <input type="password" id="newHospitalPin" placeholder="Common Hospital PIN (e.g. 1234)" required class="w-full px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-xl text-sm">Save Parent Account</button>
+                            </form>
+                        </div>
+                        <div class="bg-white dark:bg-darkCard p-6 rounded-3xl shadow-xl border space-y-4">
+                            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Registered Parent Accounts</h3>
+                            <div class="space-y-2 max-h-60 overflow-y-auto">
+                                ${db.parentAccounts.map(acc => `
+                                    <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl flex justify-between items-center text-sm">
+                                        <div><strong>${acc.username}</strong> — Child: ${acc.childName}</div>
+                                        <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Active</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (adminActiveTab === 'appointments') {
+                return `
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-3xl shadow-xl border space-y-4">
+                        <h3 class="font-bold text-lg text-slate-900 dark:text-white">Appointment Approvals</h3>
+                        <div class="space-y-3">
+                            ${db.appointments.map((apt, idx) => `
+                                <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                    <div>
+                                        <span class="text-xs font-mono text-teal-600 font-bold">${apt.id}</span>
+                                        <h4 class="font-bold text-slate-900 dark:text-white text-base">${apt.childName} (${apt.age})</h4>
+                                        <p class="text-xs text-slate-500">${apt.date} at ${apt.time} — Reason: ${apt.reason}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold ${apt.status==='Approved'?'bg-emerald-100 text-emerald-800':'bg-amber-100 text-amber-800'}">${apt.status}</span>
+                                        <button onclick="db.appointments[${idx}].status='Approved'; saveDb(); renderAdminPortal(document.getElementById('appContainer'));" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow">Approve</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (adminActiveTab === 'reports') {
+                return `
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-3xl shadow-xl border space-y-4">
+                        <h3 class="font-bold text-lg text-slate-900 dark:text-white">Clinical Report Release Management</h3>
+                        <div class="space-y-3">
+                            ${Object.keys(db.patientRecords).map(name => {
+                                const rec = db.patientRecords[name];
+                                return `
+                                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border flex justify-between items-center">
+                                        <div>
+                                            <h4 class="font-bold text-base text-slate-900 dark:text-white">${rec.childName} (${rec.age})</h4>
+                                            <p class="text-xs text-slate-500">Visit Date: ${rec.visitDate}</p>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="px-3 py-1 rounded-full text-xs font-bold ${rec.reportReleased?'bg-emerald-100 text-emerald-800':'bg-amber-100 text-amber-800'}">${rec.reportReleased?'Released':'Pending'}</span>
+                                            <button onclick="db.patientRecords['${name}'].reportReleased = !db.patientRecords['${name}'].reportReleased; saveDb(); renderAdminPortal(document.getElementById('appContainer'));" class="bg-slate-900 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold">${rec.reportReleased?'Hide':'Release Report'}</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (adminActiveTab === 'billing') {
+                return `
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-3xl shadow-xl border space-y-4">
+                        <h3 class="font-bold text-lg text-slate-900 dark:text-white">Bill & Receipt Release</h3>
+                        <div class="space-y-3">
+                            ${db.bills.map((bill, idx) => `
+                                <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border flex justify-between items-center">
+                                    <div>
+                                        <span class="text-xs font-mono text-teal-600 font-bold">${bill.id} (${bill.receiptNo})</span>
+                                        <h4 class="font-bold text-base text-slate-900 dark:text-white">${bill.childName} — ${bill.service} (${bill.amount})</h4>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">${bill.status}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (adminActiveTab === 'videos') {
+                return `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Interactive Vitals Guide CMS with File Upload & YouTube Link -->
+                        <div class="bg-white dark:bg-darkCard p-6 rounded-3xl shadow-xl border space-y-4">
+                            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Add Interactive Vitals Guide Video</h3>
+                            <form onsubmit="handleAdminAddVitalVideo(event)" class="space-y-3">
+                                <input type="text" id="adminVitalCat" placeholder="Category (e.g. Temperature)" required class="w-full px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                <input type="text" id="adminVitalTitle" placeholder="Video Title" required class="w-full px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-semibold text-slate-500">Option A: YouTube Link or Embed URL</label>
+                                    <input type="text" id="adminVitalUrl" placeholder="https://www.youtube.com/watch?v=..." class="w-full px-3 py-2 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-semibold text-slate-500">Option B: Upload Video File from Device</label>
+                                    <input type="file" id="adminVitalFile" accept="video/*" class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-tealBrand file:text-white hover:file:bg-teal-800">
+                                </div>
+                                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-xl text-sm transition">Add Vitals Guide Video</button>
+                            </form>
+                        </div>
+
+                        <!-- Cartoon Health Video CMS with File Upload & YouTube Link -->
+                        <div class="bg-white dark:bg-darkCard p-6 rounded-3xl shadow-xl border space-y-4">
+                            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Add Cartoon Health Video</h3>
+                            <form onsubmit="handleAdminAddCartoonVideo(event)" class="space-y-3">
+                                <input type="text" id="adminCartoonTitle" placeholder="Story Title (e.g. Sparky's Hand Hygiene)" required class="w-full px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                <input type="text" id="adminCartoonMsg" placeholder="Character Message" required class="w-full px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-semibold text-slate-500">Option A: YouTube Link or Embed URL</label>
+                                    <input type="text" id="adminCartoonUrl" placeholder="https://www.youtube.com/watch?v=..." class="w-full px-3 py-2 rounded-xl border bg-slate-50 dark:bg-slate-800 text-sm">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-semibold text-slate-500">Option B: Upload Video File from Device</label>
+                                    <input type="file" id="adminCartoonFile" accept="video/*" class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-tealBrand file:text-white hover:file:bg-teal-800">
+                                </div>
+                                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-xl text-sm transition">Add Cartoon Health Video</button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function handleAddParentAccount(e) {
+            e.preventDefault();
+            const username = document.getElementById('newParentUser').value;
+            const childName = document.getElementById('newChildName').value;
+            const pin = document.getElementById('newHospitalPin').value;
+            db.parentAccounts.push({ username, childName, pin });
+            saveDb();
+            alert(`Parent account created for ${childName}!`);
+            renderAdminPortal(document.getElementById('appContainer'));
+        }
+
+        function handleAdminAddVitalVideo(e) {
+            e.preventDefault();
+            const category = document.getElementById('adminVitalCat').value;
+            const title = document.getElementById('adminVitalTitle').value;
+            let url = document.getElementById('adminVitalUrl').value.trim();
+            const fileInput = document.getElementById('adminVitalFile');
+
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const fileReader = new FileReader();
+                fileReader.onload = function(evt) {
+                    db.vitalsVideos.push({ category, title, videoUrl: evt.target.result, isVideoFile: true, paramKey: 'custom', unit: 'unit', defaultVal: '0' });
+                    saveDb();
+                    alert('Interactive vitals video file uploaded successfully!');
+                    renderAdminPortal(document.getElementById('appContainer'));
+                };
+                fileReader.readAsDataURL(fileInput.files[0]);
+            } else {
+                if (url.includes('watch?v=')) url = url.replace('watch?v=', 'embed/');
+                db.vitalsVideos.push({ category, title, videoUrl: url, isVideoFile: false, paramKey: 'custom', unit: 'unit', defaultVal: '0' });
+                saveDb();
+                alert('Interactive vitals guide video added successfully!');
+                renderAdminPortal(document.getElementById('appContainer'));
+            }
+        }
+
+        function handleAdminAddCartoonVideo(e) {
+            e.preventDefault();
+            const title = document.getElementById('adminCartoonTitle').value;
+            const message = document.getElementById('adminCartoonMsg').value;
+            let url = document.getElementById('adminCartoonUrl').value.trim();
+            const fileInput = document.getElementById('adminCartoonFile');
+
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const fileReader = new FileReader();
+                fileReader.onload = function(evt) {
+                    db.cartoonStories.push({ title, character: '🐻', message, videoUrl: evt.target.result, isVideoFile: true });
+                    saveDb();
+                    alert('Cartoon video file uploaded successfully!');
+                    renderAdminPortal(document.getElementById('appContainer'));
+                };
+                fileReader.readAsDataURL(fileInput.files[0]);
+            } else {
+                if (url.includes('watch?v=')) url = url.replace('watch?v=', 'embed/');
+                db.cartoonStories.push({ title, character: '🐻', message, videoUrl: url, isVideoFile: false });
+                saveDb();
+                alert('Cartoon health video added successfully!');
+                renderAdminPortal(document.getElementById('appContainer'));
+            }
+        }
+
+        window.onload = function () {
+            router.navigate('roleSelection');
+        };
+    </script>
+</body>
+</html>
